@@ -1,7 +1,17 @@
-import { Client, Intents, Collection, Message } from "discord.js";
-import { DisTube } from "distube";
-import { YtDlpPlugin } from "@distube/yt-dlp";
-import { createAgent } from "@distube/ytdl-core";
+import {
+  Client,
+  Collection,
+  Message,
+  GatewayIntentBits,
+  ClientEvents,
+} from "discord.js";
+import { DisTube, Events } from "distube";
+import { YouTubePlugin } from "@distube/youtube";
+import { SpotifyPlugin } from "@distube/spotify";
+import { SoundCloudPlugin } from "@distube/soundcloud";
+import { DeezerPlugin } from "@distube/deezer";
+import { FilePlugin } from "@distube/file";
+import { DirectLinkPlugin } from "@distube/direct-link";
 import config from "./config";
 import * as fs from "fs";
 import * as path from "path";
@@ -9,10 +19,11 @@ import * as path from "path";
 // Crear el cliente de Discord
 const client = new Client({
   intents: [
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_MESSAGES,
-    Intents.FLAGS.GUILD_VOICE_STATES,
-    Intents.FLAGS.DIRECT_MESSAGES,
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.MessageContent,
   ],
 });
 
@@ -205,22 +216,18 @@ const cookies = [
   },
 ];
 
-// (Optional) http-cookie-agent / undici agent options
-// Below are examples, NOT the recommended options
-const agentOptions = {
-  pipelining: 5,
-  maxRedirections: 0,
-};
-
 // Configurar DisTube con mejor estabilidad
 client.distube = new DisTube(client, {
-  leaveOnStop: false,
-  leaveOnFinish: false,
-  leaveOnEmpty: false,
   emitNewSongOnly: true,
   savePreviousSongs: false,
-  youtubeCookie: process.env.YOUTUBE_COOKIE,
-  plugins: [new YtDlpPlugin()],
+  plugins: [
+    new YouTubePlugin({ cookies }),
+    new SpotifyPlugin(),
+    new SoundCloudPlugin(),
+    new DeezerPlugin(),
+    new FilePlugin(),
+    new DirectLinkPlugin(),
+  ],
 });
 
 // Cargar comandos
@@ -274,20 +281,19 @@ client.on("messageCreate", async (message: Message) => {
 
 // Manejar eventos de DisTube
 client.distube
-  .on("playSong", (queue, song) => {
+  .on(Events.PLAY_SONG, (queue, song) => {
     const textChannel = queue.textChannel as any;
     textChannel?.send(
       `🎵 Reproduciendo: \`${song.name}\` - \`${song.formattedDuration}\``
     );
   })
-  .on("addSong", (queue, song) => {
+  .on(Events.ADD_SONG, (queue, song) => {
     const textChannel = queue.textChannel as any;
     textChannel?.send(
       `✅ Añadido \`${song.name}\` - \`${song.formattedDuration}\` a la cola.`
     );
   })
-  .on("error", (channel, e) => {
-    channel?.send(`Error: ${e}`);
+  .on(Events.ERROR, (channel, e) => {
     console.error(e);
   });
 

@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from "discord.js";
+import { Message, EmbedBuilder } from "discord.js";
 
 module.exports = {
   data: {
@@ -15,7 +15,7 @@ module.exports = {
     try {
       const songs = queue.songs.slice(0, 10);
 
-      const embed = new MessageEmbed()
+      const embed = new EmbedBuilder()
         .setTitle("Cola de reproducción")
         .setColor("#0099ff")
         .setDescription(
