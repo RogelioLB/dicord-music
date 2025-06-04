@@ -1,6 +1,7 @@
 import { Client, Intents, Collection, Message } from "discord.js";
 import { DisTube } from "distube";
 import { YtDlpPlugin } from "@distube/yt-dlp";
+import { createAgent } from "@distube/ytdl-core";
 import config from "./config";
 import * as fs from "fs";
 import * as path from "path";
@@ -26,6 +27,192 @@ declare module "discord.js" {
 // Inicializar la colección de comandos
 client.commands = new Collection();
 
+const cookies = [
+  {
+    domain: ".youtube.com",
+    expirationDate: 1764279788.225323,
+    hostOnly: false,
+    httpOnly: true,
+    name: "__Secure-3PSID",
+    path: "/",
+    sameSite: "no_restriction",
+    secure: true,
+    session: false,
+    storeId: null,
+    value:
+      "g.a000xghrB-LqkTSOBJBWcItjg4cBWX8Mjmk5_ff9cJN5uU4R7YLlTTuWogPYZZl9YrO-w8IrkQACgYKATASARYSFQHGX2MiaTCDmH7nPP3TR6bwLUAa0hoVAUF8yKoBWqyzVWBZxZalsCFbhhqr0076",
+  },
+  {
+    domain: ".youtube.com",
+    expirationDate: 1764567402.977961,
+    hostOnly: false,
+    httpOnly: true,
+    name: "__Secure-1PSIDTS",
+    path: "/",
+    sameSite: "no_restriction",
+    secure: true,
+    session: false,
+    storeId: null,
+    value:
+      "sidts-CjIB5H03P9WSOAFedp4N104_L_GVFWeCdZEW51eMMDXV8brzPLkJfdWCrHEzorNQhHLjRhAA",
+  },
+  {
+    domain: ".youtube.com",
+    expirationDate: 1764279788.225079,
+    hostOnly: false,
+    httpOnly: false,
+    name: "SAPISID",
+    path: "/",
+    sameSite: "no_restriction",
+    secure: true,
+    session: false,
+    storeId: null,
+    value: "XIkUf3L4VCqbKLxg/A3rbkcyVpoW4AhKsf",
+  },
+  {
+    domain: ".youtube.com",
+    expirationDate: 1764567961.687042,
+    hostOnly: false,
+    httpOnly: true,
+    name: "__Secure-1PSIDCC",
+    path: "/",
+    sameSite: undefined,
+    secure: true,
+    session: false,
+    storeId: null,
+    value:
+      "AKEyXzXu758a4fOJzHvSywoyFqn-v1DTYYZL2Y2xIRzzPjQJTA7VxyIWbHZqfa5tTrxek_rrTw",
+  },
+  {
+    domain: ".youtube.com",
+    expirationDate: 1764279788.225055,
+    hostOnly: false,
+    httpOnly: true,
+    name: "SSID",
+    path: "/",
+    sameSite: undefined,
+    secure: true,
+    session: false,
+    storeId: null,
+    value: "AOqBEHkweDe4puLNy",
+  },
+  {
+    domain: ".youtube.com",
+    hostOnly: false,
+    httpOnly: false,
+    name: "wide",
+    path: "/",
+    sameSite: "lax",
+    secure: true,
+    session: true,
+    storeId: null,
+    value: "1",
+  },
+  {
+    domain: ".youtube.com",
+    expirationDate: 1764279788.225103,
+    hostOnly: false,
+    httpOnly: false,
+    name: "__Secure-1PAPISID",
+    path: "/",
+    sameSite: undefined,
+    secure: true,
+    session: false,
+    storeId: null,
+    value: "XIkUf3L4VCqbKLxg/A3rbkcyVpoW4AhKsf",
+  },
+  {
+    domain: ".youtube.com",
+    expirationDate: 1764279788.225282,
+    hostOnly: false,
+    httpOnly: true,
+    name: "__Secure-1PSID",
+    path: "/",
+    sameSite: undefined,
+    secure: true,
+    session: false,
+    storeId: null,
+    value:
+      "g.a000xghrB-LqkTSOBJBWcItjg4cBWX8Mjmk5_ff9cJN5uU4R7YLlGf7DnKAt3VFwPRTIaLQL_gACgYKARMSARYSFQHGX2MiHp4v1ICfeSco6xTOJVh53RoVAUF8yKoWkxHwSdjGsY5OzGM3zQ2I0076",
+  },
+  {
+    domain: ".youtube.com",
+    expirationDate: 1764279788.225147,
+    hostOnly: false,
+    httpOnly: false,
+    name: "__Secure-3PAPISID",
+    path: "/",
+    sameSite: "no_restriction",
+    secure: true,
+    session: false,
+    storeId: null,
+    value: "XIkUf3L4VCqbKLxg/A3rbkcyVpoW4AhKsf",
+  },
+  {
+    domain: ".youtube.com",
+    expirationDate: 1764567961.687144,
+    hostOnly: false,
+    httpOnly: true,
+    name: "__Secure-3PSIDCC",
+    path: "/",
+    sameSite: "no_restriction",
+    secure: true,
+    session: false,
+    storeId: null,
+    value:
+      "AKEyXzVjrENn_eNnLgELnHW8MlgoixUIrBpgklRnFYHk07aaG4fdIXR0UCunhAUwKUulp9P_d1U",
+  },
+  {
+    domain: ".youtube.com",
+    expirationDate: 1764567402.978103,
+    hostOnly: false,
+    httpOnly: true,
+    name: "__Secure-3PSIDTS",
+    path: "/",
+    sameSite: "no_restriction",
+    secure: true,
+    session: false,
+    storeId: null,
+    value:
+      "sidts-CjIB5H03P9WSOAFedp4N104_L_GVFWeCdZEW51eMMDXV8brzPLkJfdWCrHEzorNQhHLjRhAA",
+  },
+  {
+    domain: ".youtube.com",
+    expirationDate: 1763908318.89408,
+    hostOnly: false,
+    httpOnly: true,
+    name: "LOGIN_INFO",
+    path: "/",
+    sameSite: "no_restriction",
+    secure: true,
+    session: false,
+    storeId: null,
+    value:
+      "AFmmF2swRgIhALPVdNUZMzSzVpIol3vZeo6P31niTDelS4_pvjARBsWnAiEAm0f4rVinJvQ9DX6UwI8GjkE8D64Cfl4xPpokUNs5pOc:QUQ3MjNmeWxrb1k5a2pOV0dsMkt4bHFvbFAyam4tQWY3Z3ZPcms1ZE1ueUY3dTVraHdjOTVacDNPT3NFTDNHbkFyWTBINGhRZWhpRzFCZ252MC1ROXNmS0RtSS1vdjJXRVlnZzVPdm53V19iZXUwY0Z2UVcxYV9Oc1BSTkk4bDQxZmhlVXNSb0tBTllxdGViazJGb3pqSnAyNWhMcTQyenZB",
+  },
+  {
+    domain: ".youtube.com",
+    expirationDate: 1749617893.168823,
+    hostOnly: false,
+    httpOnly: false,
+    name: "PREF",
+    path: "/",
+    sameSite: "no_restriction",
+    secure: true,
+    session: false,
+    storeId: null,
+    value: "f6=40000080&f7=d00&tz=America.Mazatlan&repeat=NONE&f4=4000000",
+  },
+];
+
+// (Optional) http-cookie-agent / undici agent options
+// Below are examples, NOT the recommended options
+const agentOptions = {
+  pipelining: 5,
+  maxRedirections: 0,
+  localAddress: "127.0.0.1",
+};
+
 // Configurar DisTube con mejor estabilidad
 client.distube = new DisTube(client, {
   leaveOnStop: false,
@@ -37,6 +224,7 @@ client.distube = new DisTube(client, {
     quality: "highestaudio",
     highWaterMark: 1 << 27, // ~128MB para prevenir cortes
     filter: "audioonly",
+    agent: createAgent(cookies, agentOptions),
   },
   youtubeIdentityToken: process.env.YOUTUBE_COOKIE,
   plugins: [new YtDlpPlugin()],
