@@ -293,8 +293,9 @@ client.distube
       `✅ Añadido \`${song.name}\` - \`${song.formattedDuration}\` a la cola.`
     );
   })
-  .on(Events.ERROR, (channel, e) => {
-    console.error(e);
+  .on(Events.ERROR, (error, queue) => {
+    console.log(error);
+    console.error(queue);
   });
 
 // Iniciar sesión con el token de Discord
