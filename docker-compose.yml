@@ -1,0 +1,23 @@
+version: '3'
+
+# Discord Music Bot - Configuración de Docker Compose
+# Para usar:
+# 1. Asegúrate de crear un archivo .env con DISCORD_TOKEN, PREFIX y YOUTUBE_COOKIE
+# 2. Reemplaza 'username' por tu nombre de usuario real de Docker Hub
+# 3. Ejecuta: docker-compose up -d
+
+services:
+  discord-music-bot:
+    # Descomenta la siguiente línea y comenta la sección 'build' después de subir la imagen
+    # image: ${DOCKER_USERNAME}/discord-music-bot:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: discord-music-bot
+    restart: unless-stopped
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - PREFIX=${PREFIX}
+      - YOUTUBE_COOKIE=${YOUTUBE_COOKIE}
+    volumes:
+      - ./logs:/app/logs
