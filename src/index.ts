@@ -33,12 +33,12 @@ client.distube = new DisTube(client, {
   leaveOnEmpty: false,
   emitNewSongOnly: true,
   savePreviousSongs: false,
-  youtubeCookie: process.env.YOUTUBE_COOKIE,
   ytdlOptions: {
     quality: "highestaudio",
     highWaterMark: 1 << 27, // ~128MB para prevenir cortes
     filter: "audioonly",
   },
+  youtubeIdentityToken: process.env.YOUTUBE_COOKIE,
   plugins: [new YtDlpPlugin()],
 });
 

@@ -1,4 +1,5 @@
 @echo off
+setlocal enabledelayedexpansion
 echo ===================================
 echo    Despliegue de Discord Music Bot
 echo ===================================
